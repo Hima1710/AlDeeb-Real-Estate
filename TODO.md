@@ -1,8 +1,8 @@
-# TODO: Add About Us Section to Homepage
+# TODO: تحسين سرعة تحميل الصفحة الرئيسية وصفحة التفاصيل باستخدام التخزين المؤقت (Caching)
 
 ## Steps:
-1. [x] Modify index.html to add an "About Us" section below the projects title, including content about the company location in Sadat City, Menoufia Governorate, description, goals, development, and work.
-2. [x] Add bilingual support (Arabic and English) for the About Us section.
-3. [x] Update script.js to handle language switching for the new About Us content.
-4. [x] Style the About Us section to be organized and beautiful, similar to large company websites.
-5. [x] Test the homepage to ensure the section displays correctly in both languages and integrates well with the existing design.
+1. [x] في script.js: تعديل دالة load في الصفحة الرئيسية للتحقق من البيانات المخزنة في localStorage أولاً، وعرض البطاقات فوراً إذا كانت البيانات موجودة وحديثة (ساعة واحدة).
+2. [x] في script.js: جلب البيانات الجديدة في الخلفية (background) دون إيقاف عرض البطاقات، وتخزين تفاصيل كل مشروع فردياً.
+3. [x] في script.js: تعديل دالة load في صفحة التفاصيل (project.html) للتحقق من البيانات المخزنة للمشروع المحدد، وعرض التفاصيل فوراً إذا كانت موجودة.
+4. [x] في script.js: جلب تفاصيل المشروع الجديدة في الخلفية، وإعادة العرض إذا تغيرت البيانات.
+5. [x] اختبار التغييرات: التأكد من أن البطاقات والتفاصيل تظهر فوراً عند فتح الصفحات (إذا كانت مخزنة)، وأن البيانات تُحدث في الخلفية.

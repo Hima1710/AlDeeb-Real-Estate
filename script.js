@@ -113,35 +113,45 @@ if(document.getElementById('projects-container')){
       }
     }
 
-    if (!projects) {
-      // Fetch from API
-      el.container.innerHTML = '<div class="spinner"></div><div class="empty">جاري تحميل البيانات...</div>';
-      try {
-        var res = await fetch(API_URL);
-        if (!res.ok) throw new Error('API');
-        var data = await res.json();
-        projects = Array.isArray(data) ? data : (data.data || []);
-        // Cache the data
-        localStorage.setItem(cacheKey, JSON.stringify({ data: projects, timestamp: Date.now() }));
-      } catch (err) {
-        console.error(err);
-        el.container.innerHTML = '<div class="empty">حدث خطأ أثناء جلب البيانات.</div>';
-        return;
-      }
+    // If cached data exists, render immediately
+    if (projects) {
+      el.container.innerHTML = '';
+      projects.forEach(function(p) {
+        el.container.appendChild(renderCard(p, lang));
+      });
     } else {
-      // Use cached data, show loading briefly
+      // Show loading if no cache
       el.container.innerHTML = '<div class="spinner"></div><div class="empty">جاري تحميل البيانات...</div>';
     }
 
-    // Render projects
-    if (projects.length === 0) {
-      el.container.innerHTML = '<div class="empty">' + (lang === 'ar' ? 'لا توجد مشاريع حالياً' : 'No projects found') + '</div>';
-      return;
+    // Fetch new data in background
+    try {
+      var res = await fetch(API_URL);
+      if (!res.ok) throw new Error('API');
+      var data = await res.json();
+      var newProjects = Array.isArray(data) ? data : (data.data || []);
+
+      // Cache the new data
+      localStorage.setItem(cacheKey, JSON.stringify({ data: newProjects, timestamp: Date.now() }));
+
+      // Cache individual project details
+      newProjects.forEach(function(p) {
+        localStorage.setItem('project_' + p.id, JSON.stringify({ data: p, timestamp: Date.now() }));
+      });
+
+      // Re-render if data changed or no cache was used
+      if (!projects || JSON.stringify(projects) !== JSON.stringify(newProjects)) {
+        el.container.innerHTML = '';
+        newProjects.forEach(function(p) {
+          el.container.appendChild(renderCard(p, lang));
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      if (!projects) {
+        el.container.innerHTML = '<div class="empty">حدث خطأ أثناء جلب البيانات.</div>';
+      }
     }
-    el.container.innerHTML = '';
-    projects.forEach(function(p) {
-      el.container.appendChild(renderCard(p, lang));
-    });
   }
 
   function renderCard(p, langLocal){
@@ -155,9 +165,11 @@ if(document.getElementById('projects-container')){
     var mediaHtml = imgs.length
       ? '<img src="'+imgs[0]+'" alt="'+escapeHtml(title)+'">'
       : '<div style="padding:18px;color:var(--muted)">'+(langLocal==='ar'?'لا توجد صور':'No images')+'</div>';
+    var dotsHtml = imgs.length > 1 ? '<div class="media-dots">' + imgs.map((_, i) => '<span class="media-dot' + (i === 0 ? ' active' : '') + '" data-index="' + i + '"></span>').join('') + '</div>' : '';
     card.innerHTML = `
       <div class="media" data-id="${p.id}">
         ${mediaHtml}
+        ${dotsHtml}
       </div>
       <div class="content">
         <h3 class="title">${escapeHtml(title)}</h3>
@@ -175,11 +187,33 @@ if(document.getElementById('projects-container')){
 
     var media = card.querySelector('.media');
     var imgEl = media.querySelector('img');
+    var dotsContainer = media.querySelector('.media-dots');
     var current = 0;
     var isSwiping = false;
     var dragged = false;
 
-    if(imgEl && imgs.length > 1){
+    function updateImageAndDots() {
+      if (imgEl) {
+        imgEl.src = imgs[current];
+      }
+      if (dotsContainer) {
+        dotsContainer.querySelectorAll('.media-dot').forEach((dot, i) => {
+          dot.classList.toggle('active', i === current);
+        });
+      }
+    }
+
+    if (imgEl && imgs.length > 1) {
+      // Add click events to dots
+      if (dotsContainer) {
+        dotsContainer.querySelectorAll('.media-dot').forEach((dot, i) => {
+          dot.addEventListener('click', function() {
+            current = i;
+            updateImageAndDots();
+          });
+        });
+      }
+
       // Swipe support for touch
       let startX = 0;
       let startY = 0;
@@ -207,52 +241,55 @@ if(document.getElementById('projects-container')){
           } else { // Swipe right - prev
             current = (current - 1 + imgs.length) % imgs.length;
           }
-          imgEl.src = imgs[current];
+          updateImageAndDots();
           isSwiping = true;
         } else if (!isSwiping) {
           // If not swiping, allow click for navigation
         }
       });
 
-      // Mouse drag support for desktop
+      // Mouse drag support for desktop - improved to change on mouseup
       let mouseStartX = 0;
       let mouseStartY = 0;
-      let isDragging = false;
+      let dragDiffX = 0;
 
       media.addEventListener('mousedown', function(e) {
         mouseStartX = e.clientX;
         mouseStartY = e.clientY;
+        dragDiffX = 0;
         isDragging = true;
         dragged = false;
       });
 
       media.addEventListener('mousemove', function(e) {
         if (isDragging) {
-          let diffX = mouseStartX - e.clientX;
+          dragDiffX = mouseStartX - e.clientX;
           let diffY = Math.abs(mouseStartY - e.clientY);
-          if (Math.abs(diffX) > 50 && diffX > diffY) { // Horizontal drag threshold
-            dragged = true;
-            if (diffX > 0) { // Drag left - next
-              current = (current + 1) % imgs.length;
-            } else { // Drag right - prev
-              current = (current - 1 + imgs.length) % imgs.length;
-            }
-            imgEl.src = imgs[current];
-            isDragging = false; // Prevent multiple changes
-          }
+          // Just track, don't change image yet
         }
       });
 
       media.addEventListener('mouseup', function(e) {
+        if (isDragging) {
+          let diffY = Math.abs(mouseStartY - e.clientY);
+          if (Math.abs(dragDiffX) > 50 && Math.abs(dragDiffX) > diffY) {
+            dragged = true;
+            if (dragDiffX > 0) { // Drag left - next
+              current = (current + 1) % imgs.length;
+            } else { // Drag right - prev
+              current = (current - 1 + imgs.length) % imgs.length;
+            }
+            updateImageAndDots();
+          }
+          isDragging = false;
+        }
+      });
+
+      // Prevent image change on drag during click navigation
+      media.addEventListener('mouseleave', function(e) {
         isDragging = false;
       });
     }
-
-    media.addEventListener('click', function(e){
-      if (!isSwiping && !dragged) {
-        window.location.href = 'project.html?id='+encodeURIComponent(p.id);
-      }
-    });
 
     card.querySelector('.details').addEventListener('click', function(){ 
       window.location.href = 'project.html?id='+encodeURIComponent(p.id); 
@@ -321,20 +358,54 @@ if(document.getElementById('project-hero')){
       el.galleryMain.innerHTML = '<div class="empty">لم يتم تحديد المشروع</div>';
       return;
     }
-    try{
+
+    const cacheKey = 'project_' + id;
+    const cacheExpiry = 60 * 60 * 1000; // 1 hour
+    let item = null;
+
+    // Check cache
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const cacheData = JSON.parse(cached);
+        if (Date.now() - cacheData.timestamp < cacheExpiry) {
+          item = cacheData.data;
+        }
+      } catch (e) {
+        console.warn('Invalid project cache data, ignoring');
+      }
+    }
+
+    // If cached, populate immediately
+    if (item) {
+      populate(item);
+    } else {
       el.galleryMain.innerHTML = '<div class="spinner"></div><div class="empty">جاري تحميل المشروع...</div>';
+    }
+
+    // Fetch new data in background
+    try{
       var res = await fetch(API_URL + '?id=' + encodeURIComponent(id));
       if(!res.ok) throw new Error('API');
       var data = await res.json();
-      var item = Array.isArray(data)?data[0]:data;
-      if(!item){
+      var newItem = Array.isArray(data)?data[0]:data;
+      if(!newItem){
         el.galleryMain.innerHTML = '<div class="empty">المشروع غير موجود</div>';
         return;
       }
-      populate(item);
+
+      // Cache the new data
+      localStorage.setItem(cacheKey, JSON.stringify({ data: newItem, timestamp: Date.now() }));
+
+      // Re-populate if data changed or no cache was used
+      if (!item || JSON.stringify(item) !== JSON.stringify(newItem)) {
+        populate(newItem);
+      }
     }catch(err){
       console.error(err);
-      el.galleryMain.innerHTML = '<div class="empty">حدث خطأ أثناء جلب المشروع.</div>';
+      if (!item) {
+        el.galleryMain.innerHTML = '<div class="empty">حدث خطأ أثناء جلب المشروع.</div>';
+      }
     }
   }
 

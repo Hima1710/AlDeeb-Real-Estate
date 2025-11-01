@@ -28,11 +28,15 @@ h2{font-size:28px;margin:6px 0 18px;text-align:center}
 .detail-item{background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);padding:16px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
 .detail-item h4{font-size:18px;color:var(--gold);margin-bottom:8px}
 .detail-item p{font-size:14px;color:var(--muted);line-height:1.5}
+
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
 .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03);transition: transform 0.3s ease, box-shadow 0.3s ease;}
 .card:hover {transform: translateY(-5px); box-shadow: 0 15px 40px rgba(2,6,23,0.8);}
 .media{position:relative;height:210px;background:var(--glass);display:flex;align-items:center;justify-content:center}
 .media img{width:100%;height:210px;object-fit:cover;display:block}
+.media-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:1}
+.media-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);cursor:pointer;transition:background 0.3s ease}
+.media-dot.active{background:var(--gold)}
 .media .nav{position:absolute;left:10px;right:10px;top:10px;display:flex;justify-content:space-between;pointer-events:none}
 .media .nav button{pointer-events:auto;background:rgba(0,0,0,0.45);border:0;color:var(--gold);padding:8px;border-radius:8px;cursor:pointer}
 .content{padding:14px}
