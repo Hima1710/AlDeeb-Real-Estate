@@ -1,12 +1,8 @@
-# TODO: Add SEO Meta Tags and Unify Logo Usage
+# TODO: Add About Us Section to Homepage
 
 ## Steps:
-1. [x] Add Open Graph meta tags to index.html for better SEO and social media sharing:
-   - og:title, og:description, og:image, og:url, og:type, og:site_name
-   - Twitter Card meta tags for Twitter sharing
-
-2. [x] Add similar Open Graph meta tags to project.html, but make them dynamic if possible (or static for now)
-
-3. [x] Unify logo usage: Change project.html to use the same logo as index.html ("ChatGPT Image 31 أكتوبر 2025، 09_29_43 م.png")
-
-4. [x] Test the pages to ensure logos load correctly and meta tags are present in HTML source
+1. [x] Modify index.html to add an "About Us" section below the projects title, including content about the company location in Sadat City, Menoufia Governorate, description, goals, development, and work.
+2. [x] Add bilingual support (Arabic and English) for the About Us section.
+3. [x] Update script.js to handle language switching for the new About Us content.
+4. [x] Style the About Us section to be organized and beautiful, similar to large company websites.
+5. [x] Test the homepage to ensure the section displays correctly in both languages and integrates well with the existing design.

@@ -36,12 +36,20 @@ function getImages(item){
 // INDEX PAGE
 if(document.getElementById('projects-container')){
   var lang='ar';
-  var el = { 
-    container:document.getElementById('projects-container'), 
-    title:document.getElementById('page-title'), 
-    btnAr:document.getElementById('btn-ar'), 
-    btnEn:document.getElementById('btn-en'), 
-    year:document.getElementById('year') 
+  var el = {
+    container:document.getElementById('projects-container'),
+    title:document.getElementById('page-title'),
+    aboutTitle:document.getElementById('about-title'),
+    aboutDesc:document.getElementById('about-desc'),
+    goalsTitle:document.getElementById('goals-title'),
+    goalsDesc:document.getElementById('goals-desc'),
+    developmentTitle:document.getElementById('development-title'),
+    developmentDesc:document.getElementById('development-desc'),
+    workTitle:document.getElementById('work-title'),
+    workDesc:document.getElementById('work-desc'),
+    btnAr:document.getElementById('btn-ar'),
+    btnEn:document.getElementById('btn-en'),
+    year:document.getElementById('year')
   };
 
   el.year.textContent = new Date().getFullYear();
@@ -52,13 +60,36 @@ if(document.getElementById('projects-container')){
     // No need to set year here, it's static text
   }
 
-  function setLang(l){ 
-    lang=l; 
-    document.documentElement.lang = l==='ar'?'ar':'en'; 
-    document.documentElement.dir = l==='ar'?'rtl':'ltr'; 
-    el.btnAr.classList.toggle('gold', l==='ar'); 
-    el.btnEn.classList.toggle('gold', l==='en'); 
+  function setLang(l){
+    lang=l;
+    document.documentElement.lang = l==='ar'?'ar':'en';
+    document.documentElement.dir = l==='ar'?'rtl':'ltr';
+    el.btnAr.classList.toggle('gold', l==='ar');
+    el.btnEn.classList.toggle('gold', l==='en');
+    updateAboutContent();
     load(); // ✅ التعديل هنا
+  }
+
+  function updateAboutContent(){
+    if(lang === 'ar'){
+      el.aboutTitle.textContent = 'نبذة عن الشركة';
+      el.aboutDesc.textContent = 'مجموعة الديب العقارية هي شركة رائدة في مجال التطوير العقاري، مقرها في مدينة السادات بمحافظة المنوفية. نحن متخصصون في بناء مشاريع سكنية وتجارية عالية الجودة، مع التركيز على الابتكار والاستدامة. منذ تأسيسنا، ساهمنا في تطوير العديد من المشاريع التي غيرت وجه المنطقة، ونسعى دائمًا لتحقيق رضا عملائنا من خلال تقديم حلول عقارية متكاملة وموثوقة.';
+      el.goalsTitle.textContent = 'أهدافنا';
+      el.goalsDesc.textContent = 'نسعى لأن نكون الشركة الرائدة في السوق العقاري من خلال تقديم مشاريع مبتكرة ومستدامة، وبناء مجتمعات حديثة تساهم في تحسين جودة الحياة لسكانها. نهدف إلى توسيع نطاق عملياتنا وتعزيز الثقة مع عملائنا من خلال الشفافية والجودة العالية.';
+      el.developmentTitle.textContent = 'تطورنا';
+      el.developmentDesc.textContent = 'بدأت رحلتنا منذ سنوات قليلة، وسرعان ما أصبحنا واحدة من الشركات البارزة في المنطقة. من خلال الاستثمار في التكنولوجيا والموارد البشرية، نجحنا في إكمال العديد من المشاريع الناجحة، مما سمح لنا بتوسيع أعمالنا وتعزيز سمعتنا كشركة موثوقة ومحترفة.';
+      el.workTitle.textContent = 'عملنا';
+      el.workDesc.textContent = 'نقوم بتطوير مشاريع متنوعة تشمل الوحدات السكنية، المجمعات التجارية، والمنشآت الترفيهية. كل مشروع يتم تصميمه بعناية ليلبي احتياجات العملاء، مع الالتزام بأعلى معايير الجودة والسلامة. نحن نؤمن بأن العقار ليس مجرد استثمار، بل هو بناء للمستقبل.';
+    } else {
+      el.aboutTitle.textContent = 'About the Company';
+      el.aboutDesc.textContent = 'Al-Deeb Real Estate Group is a leading company in real estate development, headquartered in Sadat City, Menoufia Governorate. We specialize in building high-quality residential and commercial projects, with a focus on innovation and sustainability. Since our establishment, we have contributed to the development of many projects that have changed the face of the region, and we always strive to achieve customer satisfaction by providing integrated and reliable real estate solutions.';
+      el.goalsTitle.textContent = 'Our Goals';
+      el.goalsDesc.textContent = 'We strive to be the leading company in the real estate market by offering innovative and sustainable projects, and building modern communities that contribute to improving the quality of life for their residents. We aim to expand our operations and enhance trust with our customers through transparency and high quality.';
+      el.developmentTitle.textContent = 'Our Development';
+      el.developmentDesc.textContent = 'Our journey began a few years ago, and we quickly became one of the prominent companies in the region. Through investment in technology and human resources, we have successfully completed many successful projects, allowing us to expand our business and enhance our reputation as a reliable and professional company.';
+      el.workTitle.textContent = 'Our Work';
+      el.workDesc.textContent = 'We develop diverse projects including residential units, commercial complexes, and recreational facilities. Each project is carefully designed to meet customer needs, with a commitment to the highest standards of quality and safety. We believe that real estate is not just an investment, but building for the future.';
+    }
   }
 
   el.btnAr.addEventListener('click', function(){ setLang('ar'); }); 
@@ -121,12 +152,11 @@ if(document.getElementById('projects-container')){
     var price = formatPrice(p.price, langLocal);
     var card = document.createElement('div'); 
     card.className='card';
-    var mediaHtml = imgs.length 
-      ? '<img src="'+imgs[0]+'" alt="'+escapeHtml(title)+'">' 
+    var mediaHtml = imgs.length
+      ? '<img src="'+imgs[0]+'" alt="'+escapeHtml(title)+'">'
       : '<div style="padding:18px;color:var(--muted)">'+(langLocal==='ar'?'لا توجد صور':'No images')+'</div>';
     card.innerHTML = `
       <div class="media" data-id="${p.id}">
-        <div class="nav"><button class="prev">‹</button><button class="next">›</button></div>
         ${mediaHtml}
       </div>
       <div class="content">
@@ -138,32 +168,90 @@ if(document.getElementById('projects-container')){
         </div>
         <div class="actions">
           <button class="watch" data-video="${escapeHtml(p.video||'')}">${langLocal==='ar'?'شاهد الفيديو':'Watch Video'}</button>
+          <button class="whatsapp" onclick="window.open('https://wa.me/201146605498','_blank')">${langLocal==='ar'?'واتساب 01146605498':'WhatsApp 01146605498'}</button>
           <button class="details" data-id="${p.id}">${langLocal==='ar'?'المزيد':'Details'}</button>
         </div>
       </div>`;
 
-    var media = card.querySelector('.media'); 
-    var imgEl = media.querySelector('img'); 
-    var prev = media.querySelector('.prev'); 
-    var next = media.querySelector('.next');
+    var media = card.querySelector('.media');
+    var imgEl = media.querySelector('img');
     var current = 0;
+    var isSwiping = false;
+    var dragged = false;
 
-    prev.addEventListener('click', function(e){ 
-      e.stopPropagation(); 
-      if(!imgs.length) return; 
-      current=(current-1+imgs.length)%imgs.length; 
-      if(imgEl) imgEl.src = imgs[current]; 
-    });
+    if(imgEl && imgs.length > 1){
+      // Swipe support for touch
+      let startX = 0;
+      let startY = 0;
 
-    next.addEventListener('click', function(e){ 
-      e.stopPropagation(); 
-      if(!imgs.length) return; 
-      current=(current+1)%imgs.length; 
-      if(imgEl) imgEl.src = imgs[current]; 
-    });
+      media.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        isSwiping = false;
+      });
 
-    media.addEventListener('click', function(){ 
-      window.location.href = 'project.html?id='+encodeURIComponent(p.id); 
+      media.addEventListener('touchmove', function(e) {
+        isSwiping = true;
+      });
+
+      media.addEventListener('touchend', function(e) {
+        let endX = e.changedTouches[0].clientX;
+        let endY = e.changedTouches[0].clientY;
+        let diffX = startX - endX;
+        let diffY = Math.abs(startY - endY);
+
+        if (Math.abs(diffX) > 50 && diffX > diffY) { // Horizontal swipe threshold
+          e.preventDefault(); // Prevent click
+          if (diffX > 0) { // Swipe left - next
+            current = (current + 1) % imgs.length;
+          } else { // Swipe right - prev
+            current = (current - 1 + imgs.length) % imgs.length;
+          }
+          imgEl.src = imgs[current];
+          isSwiping = true;
+        } else if (!isSwiping) {
+          // If not swiping, allow click for navigation
+        }
+      });
+
+      // Mouse drag support for desktop
+      let mouseStartX = 0;
+      let mouseStartY = 0;
+      let isDragging = false;
+
+      media.addEventListener('mousedown', function(e) {
+        mouseStartX = e.clientX;
+        mouseStartY = e.clientY;
+        isDragging = true;
+        dragged = false;
+      });
+
+      media.addEventListener('mousemove', function(e) {
+        if (isDragging) {
+          let diffX = mouseStartX - e.clientX;
+          let diffY = Math.abs(mouseStartY - e.clientY);
+          if (Math.abs(diffX) > 50 && diffX > diffY) { // Horizontal drag threshold
+            dragged = true;
+            if (diffX > 0) { // Drag left - next
+              current = (current + 1) % imgs.length;
+            } else { // Drag right - prev
+              current = (current - 1 + imgs.length) % imgs.length;
+            }
+            imgEl.src = imgs[current];
+            isDragging = false; // Prevent multiple changes
+          }
+        }
+      });
+
+      media.addEventListener('mouseup', function(e) {
+        isDragging = false;
+      });
+    }
+
+    media.addEventListener('click', function(e){
+      if (!isSwiping && !dragged) {
+        window.location.href = 'project.html?id='+encodeURIComponent(p.id);
+      }
     });
 
     card.querySelector('.details').addEventListener('click', function(){ 
@@ -180,7 +268,8 @@ if(document.getElementById('projects-container')){
     return card;
   }
 
-  setLang('ar'); 
+  setLang('ar');
+  updateAboutContent();
   load();
 }
 
