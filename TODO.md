@@ -1,8 +1,20 @@
-# TODO: تحسين سرعة تحميل الصفحة الرئيسية وصفحة التفاصيل باستخدام التخزين المؤقت (Caching)
+# TODO List for Developer Banner Update
 
-## Steps:
-1. [x] في script.js: تعديل دالة load في الصفحة الرئيسية للتحقق من البيانات المخزنة في localStorage أولاً، وعرض البطاقات فوراً إذا كانت البيانات موجودة وحديثة (ساعة واحدة).
-2. [x] في script.js: جلب البيانات الجديدة في الخلفية (background) دون إيقاف عرض البطاقات، وتخزين تفاصيل كل مشروع فردياً.
-3. [x] في script.js: تعديل دالة load في صفحة التفاصيل (project.html) للتحقق من البيانات المخزنة للمشروع المحدد، وعرض التفاصيل فوراً إذا كانت موجودة.
-4. [x] في script.js: جلب تفاصيل المشروع الجديدة في الخلفية، وإعادة العرض إذا تغيرت البيانات.
-5. [x] اختبار التغييرات: التأكد من أن البطاقات والتفاصيل تظهر فوراً عند فتح الصفحات (إذا كانت مخزنة)، وأن البيانات تُحدث في الخلفية.
+- [x] Edit index.html: Change developer banner text to "Developed by Ibrahim Mabrouk"
+- [x] Edit project.html: Change developer banner text to "Developed by Ibrahim Mabrouk"
+
+# TODO List for Fixing JavaScript Errors
+
+- [x] Fix classList errors in script.js by adding null checks
+
+# TODO List for Updating App Icon
+
+- [x] Update manifest.json to use the logo image as app icon
+
+# TODO List for Adding Push Notifications
+
+- [ ] Set up Firebase project and get FCM keys
+- [ ] Update manifest.json with FCM sender ID
+- [ ] Update sw.js to handle push events
+- [ ] Update script.js to request notification permission and subscribe to push
+- [ ] Add logic to send notifications when new projects are added (requires backend integration)

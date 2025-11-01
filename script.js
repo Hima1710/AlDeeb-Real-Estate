@@ -1,5 +1,60 @@
+
 // Shared script for index and project pages
 const API_URL = "https://script.google.com/macros/s/AKfycbwT8JIUtKCyAfVXwJtrKwK8MAkI-ZHycBJVBaiCneR7izsXxw2fPLpWG3kcikZa8EorAg/exec";
+
+// PWA Install Prompt
+let deferredPrompt;
+const installBanner = document.getElementById('install-banner');
+const installBtn = document.getElementById('install-btn');
+const closeBtn = document.getElementById('close-banner');
+
+if (installBanner && installBtn && closeBtn) {
+  // Check if already installed
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    installBanner.style.display = 'none';
+  } else {
+    // Listen for beforeinstallprompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBanner.classList.add('show');
+    });
+
+    // Install button click
+    installBtn.addEventListener('click', () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+          } else {
+            console.log('User dismissed the install prompt');
+          }
+          deferredPrompt = null;
+          installBanner.classList.remove('show');
+        });
+      }
+    });
+
+    // Close button click
+    closeBtn.addEventListener('click', () => {
+      installBanner.classList.remove('show');
+    });
+  }
+}
+
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((registration) => {
+        console.log('SW registered: ', registration);
+      })
+      .catch((registrationError) => {
+        console.log('SW registration failed: ', registrationError);
+      });
+  });
+}
 
 function getParam(name){ 
   const url = new URL(window.location.href); 
@@ -64,8 +119,8 @@ if(document.getElementById('projects-container')){
     lang=l;
     document.documentElement.lang = l==='ar'?'ar':'en';
     document.documentElement.dir = l==='ar'?'rtl':'ltr';
-    el.btnAr.classList.toggle('gold', l==='ar');
-    el.btnEn.classList.toggle('gold', l==='en');
+    if (el.btnAr) el.btnAr.classList.toggle('gold', l==='ar');
+    if (el.btnEn) el.btnEn.classList.toggle('gold', l==='en');
     updateAboutContent();
     load(); // ✅ التعديل هنا
   }
@@ -253,6 +308,8 @@ if(document.getElementById('projects-container')){
       let mouseStartY = 0;
       let dragDiffX = 0;
 
+      var isDragging = false;
+
       media.addEventListener('mousedown', function(e) {
         mouseStartX = e.clientX;
         mouseStartY = e.clientY;
@@ -341,8 +398,8 @@ if(document.getElementById('project-hero')){
     lang=l; 
     document.documentElement.lang = l==='ar'?'ar':'en'; 
     document.documentElement.dir = l==='ar'?'rtl':'ltr'; 
-    el.btnAr.classList.toggle('gold', l==='ar'); 
-    el.btnEn.classList.toggle('gold', l==='en'); 
+    if (el.btnAr) el.btnAr.classList.toggle('gold', l==='ar'); 
+    if (el.btnEn) el.btnEn.classList.toggle('gold', l==='en'); 
     renderLang(); 
   }
 
