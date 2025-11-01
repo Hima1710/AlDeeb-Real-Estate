@@ -1,11 +1,12 @@
-const CACHE_NAME = 'al-deeb-v1';
+const CACHE_NAME = 'al-deeb-v2';
 const urlsToCache = [
   '/',
   '/index.html',
+  '/project.html',
   '/style.css',
   '/script.js',
   '/manifest.json',
-  '/logo.png'
+  '/ChatGPT Image 31 أكتوبر 2025، 09_29_43 م.png'
 ];
 
 self.addEventListener('install', event => {
@@ -13,6 +14,22 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
   );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
