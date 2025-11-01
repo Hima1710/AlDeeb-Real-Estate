@@ -1,14 +1,12 @@
-# TODO: Implement Caching for Index Page Data
+# TODO: Add SEO Meta Tags and Unify Logo Usage
 
 ## Steps:
-1. [x] Modify the `load()` function in script.js to add localStorage caching logic:
-   - Check for cached data in localStorage with key 'projectsCache'.
-   - If cached data exists and is not older than 1 hour, use it to render the projects.
-   - Otherwise, fetch from API, cache the data with timestamp, then render.
-   - Handle cache invalidation or errors gracefully.
+1. [x] Add Open Graph meta tags to index.html for better SEO and social media sharing:
+   - og:title, og:description, og:image, og:url, og:type, og:site_name
+   - Twitter Card meta tags for Twitter sharing
 
-2. [x] Ensure language switching still triggers re-rendering from cache without refetching.
+2. [x] Add similar Open Graph meta tags to project.html, but make them dynamic if possible (or static for now)
 
-3. [x] Test navigation: Load index.html, go to project.html, back to index.html – verify no API call on back.
+3. [x] Unify logo usage: Change project.html to use the same logo as index.html ("ChatGPT Image 31 أكتوبر 2025، 09_29_43 م.png")
 
-4. [ ] (Optional) Add a way to clear cache if needed, e.g., via dev tools or a hidden button.
+4. [x] Test the pages to ensure logos load correctly and meta tags are present in HTML source
