@@ -59,24 +59,52 @@ if(document.getElementById('projects-container')){
   el.btnEn.addEventListener('click', function(){ setLang('en'); });
 
   async function load(){
-    el.container.innerHTML = '<div class="empty">جاري تحميل البيانات...</div>';
-    try{
-      var res = await fetch(API_URL);
-      if(!res.ok) throw new Error('API');
-      var data = await res.json();
-      var projects = Array.isArray(data)?data:(data.data||[]);
-      if(projects.length===0){ 
-        el.container.innerHTML = '<div class="empty">'+(lang==='ar'?'لا توجد مشاريع حالياً':'No projects found')+'</div>'; 
-        return; 
+    const cacheKey = 'projectsCache';
+    const cacheExpiry = 60 * 60 * 1000; // 1 hour in milliseconds
+    let projects = null;
+
+    // Check cache
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const cacheData = JSON.parse(cached);
+        if (Date.now() - cacheData.timestamp < cacheExpiry) {
+          projects = cacheData.data;
+        }
+      } catch (e) {
+        console.warn('Invalid cache data, ignoring');
       }
-      el.container.innerHTML='';
-      projects.forEach(function(p){ 
-        el.container.appendChild(renderCard(p, lang)); 
-      });
-    }catch(err){ 
-      console.error(err); 
-      el.container.innerHTML = '<div class="empty">حدث خطأ أثناء جلب البيانات.</div>'; 
     }
+
+    if (!projects) {
+      // Fetch from API
+      el.container.innerHTML = '<div class="spinner"></div><div class="empty">جاري تحميل البيانات...</div>';
+      try {
+        var res = await fetch(API_URL);
+        if (!res.ok) throw new Error('API');
+        var data = await res.json();
+        projects = Array.isArray(data) ? data : (data.data || []);
+        // Cache the data
+        localStorage.setItem(cacheKey, JSON.stringify({ data: projects, timestamp: Date.now() }));
+      } catch (err) {
+        console.error(err);
+        el.container.innerHTML = '<div class="empty">حدث خطأ أثناء جلب البيانات.</div>';
+        return;
+      }
+    } else {
+      // Use cached data, show loading briefly
+      el.container.innerHTML = '<div class="spinner"></div><div class="empty">جاري تحميل البيانات...</div>';
+    }
+
+    // Render projects
+    if (projects.length === 0) {
+      el.container.innerHTML = '<div class="empty">' + (lang === 'ar' ? 'لا توجد مشاريع حالياً' : 'No projects found') + '</div>';
+      return;
+    }
+    el.container.innerHTML = '';
+    projects.forEach(function(p) {
+      el.container.appendChild(renderCard(p, lang));
+    });
   }
 
   function renderCard(p, langLocal){
@@ -188,26 +216,26 @@ if(document.getElementById('project-hero')){
     el.whatsapp2.textContent = (lang==='ar'?'واتساب 01032146197':'WhatsApp 01032146197'); 
   }
 
-  async function load(){ 
-    if(!id){ 
-      el.galleryMain.innerHTML = '<div class="empty">لم يتم تحديد المشروع</div>'; 
-      return; 
-    } 
-    try{ 
-      el.galleryMain.innerHTML = '<div class="empty">جاري تحميل المشروع...</div>'; 
-      var res = await fetch(API_URL + '?id=' + encodeURIComponent(id)); 
-      if(!res.ok) throw new Error('API'); 
-      var data = await res.json(); 
-      var item = Array.isArray(data)?data[0]:data; 
-      if(!item){ 
-        el.galleryMain.innerHTML = '<div class="empty">المشروع غير موجود</div>'; 
-        return; 
-      } 
-      populate(item); 
-    }catch(err){ 
-      console.error(err); 
-      el.galleryMain.innerHTML = '<div class="empty">حدث خطأ أثناء جلب المشروع.</div>'; 
-    } 
+  async function load(){
+    if(!id){
+      el.galleryMain.innerHTML = '<div class="empty">لم يتم تحديد المشروع</div>';
+      return;
+    }
+    try{
+      el.galleryMain.innerHTML = '<div class="spinner"></div><div class="empty">جاري تحميل المشروع...</div>';
+      var res = await fetch(API_URL + '?id=' + encodeURIComponent(id));
+      if(!res.ok) throw new Error('API');
+      var data = await res.json();
+      var item = Array.isArray(data)?data[0]:data;
+      if(!item){
+        el.galleryMain.innerHTML = '<div class="empty">المشروع غير موجود</div>';
+        return;
+      }
+      populate(item);
+    }catch(err){
+      console.error(err);
+      el.galleryMain.innerHTML = '<div class="empty">حدث خطأ أثناء جلب المشروع.</div>';
+    }
   }
 
   function populate(p){ 
