@@ -46,6 +46,12 @@ if(document.getElementById('projects-container')){
 
   el.year.textContent = new Date().getFullYear();
 
+  // Set year for developer banner if exists
+  var devBanner = document.getElementById('developer-banner');
+  if (devBanner) {
+    // No need to set year here, it's static text
+  }
+
   function setLang(l){ 
     lang=l; 
     document.documentElement.lang = l==='ar'?'ar':'en'; 
@@ -182,20 +188,25 @@ if(document.getElementById('projects-container')){
 if(document.getElementById('project-hero')){
   var lang='ar'; 
   var id = getParam('id');
-  var el = { 
-    galleryMain:document.getElementById('gallery-main'), 
-    galleryThumbs:document.getElementById('gallery-thumbs'), 
-    title:document.getElementById('project-title'), 
-    desc:document.getElementById('project-desc'), 
-    location:document.getElementById('project-location'), 
-    price:document.getElementById('project-price'), 
-    watchBtn:document.getElementById('watch-video'), 
-    whatsapp1:document.getElementById('whatsapp1'), 
-    whatsapp2:document.getElementById('whatsapp2'), 
-    backBtn:document.getElementById('back-to-list'), 
-    btnAr:document.getElementById('btn-ar-detail'), 
-    btnEn:document.getElementById('btn-en-detail') 
+  var el = {
+    galleryMain:document.getElementById('gallery-main'),
+    galleryThumbs:document.getElementById('gallery-thumbs'),
+    title:document.getElementById('project-title'),
+    desc:document.getElementById('project-desc'),
+    location:document.getElementById('project-location'),
+    price:document.getElementById('project-price'),
+    watchBtn:document.getElementById('watch-video'),
+    whatsapp1:document.getElementById('whatsapp1'),
+    whatsapp2:document.getElementById('whatsapp2'),
+    backBtn:document.getElementById('back-to-list'),
+    btnAr:document.getElementById('btn-ar-detail'),
+    btnEn:document.getElementById('btn-en-detail'),
+    yearProject:document.getElementById('year-project')
   };
+
+  if (el.yearProject) {
+    el.yearProject.textContent = new Date().getFullYear();
+  }
 
   el.btnAr.addEventListener('click', function(){ setLang('ar'); }); 
   el.btnEn.addEventListener('click', function(){ setLang('en'); });

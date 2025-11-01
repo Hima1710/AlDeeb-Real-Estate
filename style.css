@@ -58,6 +58,25 @@ h2{font-size:28px;margin:6px 0 18px;text-align:center}
 }
 footer{margin-top:20px;text-align:center;color:var(--muted);font-size:13px}
 
+.developer-banner {
+  margin-top: 20px;
+  text-align: center;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.developer-banner p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.developer-banner p strong {
+  color: var(--gold);
+}
+
 /* project page */
 .project-hero{max-width:1000px;margin:18px auto 0;background:transparent;padding:18px;border-radius:12px}
 .gallery{display:flex;gap:14px;align-items:flex-start}
