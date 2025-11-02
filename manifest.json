@@ -2,7 +2,7 @@
   "name": "مجموعة الديب العقارية",
   "short_name": "الديب العقارية",
   "description": "مبروك محمد علي الديب | مجموعة الديب العقارية. اكتشف أحدث العقارات للبيع والإيجار.",
-  "start_url": "/",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007bff",

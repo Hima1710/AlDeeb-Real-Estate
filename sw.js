@@ -1,4 +1,4 @@
-const CACHE_NAME = 'al-deeb-v3';
+const CACHE_NAME = 'al-deeb-v4';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -35,25 +35,30 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Handle navigation requests
+  // Handle navigation requests - Cache First strategy
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
+      caches.match(event.request)
         .then(response => {
-          // Cache successful navigation responses
-          if (response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(event.request, responseClone);
-            });
+          if (response) {
+            // Return cached version
+            return response;
           }
-          return response;
-        })
-        .catch(() => {
-          // Return cached version or offline page
-          return caches.match(event.request)
+          // Not in cache, try network
+          return fetch(event.request)
             .then(response => {
-              return response || caches.match('/offline.html');
+              // Cache successful navigation responses
+              if (response.status === 200) {
+                const responseClone = response.clone();
+                caches.open(CACHE_NAME).then(cache => {
+                  cache.put(event.request, responseClone);
+                });
+              }
+              return response;
+            })
+            .catch(() => {
+              // Network failed, return offline page
+              return caches.match('/offline.html');
             });
         })
     );
