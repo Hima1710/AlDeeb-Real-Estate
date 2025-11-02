@@ -1,4 +1,4 @@
-const CACHE_NAME = 'al-deeb-v4';
+const CACHE_NAME = 'al-deeb-v6';
 const urlsToCache = [
   '/',
   '/index.html',
