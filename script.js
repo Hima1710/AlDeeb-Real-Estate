@@ -215,10 +215,10 @@ if(document.getElementById('projects-container')){
     var desc = langLocal==='ar'? (p.description_ar||'') : (p.description_en||'');
     var location = langLocal==='ar'? (p.location_ar||'') : (p.location_en||'');
     var price = formatPrice(p.price, langLocal);
-    var card = document.createElement('div'); 
+    var card = document.createElement('div');
     card.className='card';
     var mediaHtml = imgs.length
-      ? '<img src="'+imgs[0]+'" alt="'+escapeHtml(title)+'">'
+      ? '<div class="carousel-container"><div class="carousel-inner">' + imgs.map(src => '<img src="' + src + '" alt="' + escapeHtml(title) + '">').join('') + '</div></div>'
       : '<div style="padding:18px;color:var(--muted)">'+(langLocal==='ar'?'لا توجد صور':'No images')+'</div>';
     var dotsHtml = imgs.length > 1 ? '<div class="media-dots">' + imgs.map((_, i) => '<span class="media-dot' + (i === 0 ? ' active' : '') + '" data-index="' + i + '"></span>').join('') + '</div>' : '';
     card.innerHTML = `
@@ -241,16 +241,18 @@ if(document.getElementById('projects-container')){
       </div>`;
 
     var media = card.querySelector('.media');
-    var imgEl = media.querySelector('img');
+    var carouselInner = media.querySelector('.carousel-inner');
     var dotsContainer = media.querySelector('.media-dots');
     var current = 0;
     var isSwiping = false;
     var dragged = false;
+    var startX = 0;
+    var startY = 0;
+    var currentTranslate = 0;
+    var prevTranslate = 0;
+    var animationID = 0;
 
-    function updateImageAndDots() {
-      if (imgEl) {
-        imgEl.src = imgs[current];
-      }
+    function updateDots() {
       if (dotsContainer) {
         dotsContainer.querySelectorAll('.media-dot').forEach((dot, i) => {
           dot.classList.toggle('active', i === current);
@@ -258,105 +260,146 @@ if(document.getElementById('projects-container')){
       }
     }
 
-    if (imgEl && imgs.length > 1) {
+    function setPositionByIndex() {
+      currentTranslate = current * -100;
+      prevTranslate = currentTranslate;
+      setSliderPosition();
+    }
+
+    function setSliderPosition() {
+      if (carouselInner) {
+        carouselInner.style.transform = `translateX(${currentTranslate}%)`;
+      }
+    }
+
+    function animation() {
+      setSliderPosition();
+      if (isSwiping) requestAnimationFrame(animation);
+    }
+
+    if (carouselInner && imgs.length > 1) {
       // Add click events to dots
       if (dotsContainer) {
         dotsContainer.querySelectorAll('.media-dot').forEach((dot, i) => {
           dot.addEventListener('click', function() {
             current = i;
-            updateImageAndDots();
+            setPositionByIndex();
+            updateDots();
           });
         });
       }
 
-      // Swipe support for touch
-      let startX = 0;
-      let startY = 0;
-
+      // Touch events
       media.addEventListener('touchstart', function(e) {
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
-        isSwiping = false;
+        isSwiping = true;
+        animationID = requestAnimationFrame(animation);
       });
 
       media.addEventListener('touchmove', function(e) {
-        isSwiping = true;
+        if (!isSwiping) return;
+        let currentX = e.touches[0].clientX;
+        let currentY = e.touches[0].clientY;
+        let diffX = currentX - startX;
+        let diffY = Math.abs(currentY - startY);
+
+        if (diffY > Math.abs(diffX)) return; // Vertical scroll
+
+        e.preventDefault();
+        currentTranslate = prevTranslate + (diffX / media.offsetWidth) * 100;
       });
 
       media.addEventListener('touchend', function(e) {
-        let endX = e.changedTouches[0].clientX;
-        let endY = e.changedTouches[0].clientY;
-        let diffX = startX - endX;
-        let diffY = Math.abs(startY - endY);
+        isSwiping = false;
+        cancelAnimationFrame(animationID);
 
-        if (Math.abs(diffX) > 50 && diffX > diffY) { // Horizontal swipe threshold
-          e.preventDefault(); // Prevent click
+        let endX = e.changedTouches[0].clientX;
+        let diffX = startX - endX;
+        let diffY = Math.abs(e.changedTouches[0].clientY - startY);
+
+        if (Math.abs(diffX) > 50 && diffX > diffY) { // Swipe threshold
           if (diffX > 0) { // Swipe left - next
-            current = (current + 1) % imgs.length;
+            current = Math.min(current + 1, imgs.length - 1);
           } else { // Swipe right - prev
-            current = (current - 1 + imgs.length) % imgs.length;
+            current = Math.max(current - 1, 0);
           }
-          updateImageAndDots();
-          isSwiping = true;
-        } else if (!isSwiping) {
-          // If not swiping, allow click for navigation
+        } else {
+          // Snap back to current
         }
+        setPositionByIndex();
+        updateDots();
       });
 
-      // Mouse drag support for desktop - improved to change on mouseup
+      // Mouse events
       let mouseStartX = 0;
       let mouseStartY = 0;
-      let dragDiffX = 0;
-
-      var isDragging = false;
+      let isDragging = false;
 
       media.addEventListener('mousedown', function(e) {
         mouseStartX = e.clientX;
         mouseStartY = e.clientY;
-        dragDiffX = 0;
         isDragging = true;
+        isSwiping = true;
+        animationID = requestAnimationFrame(animation);
         dragged = false;
       });
 
       media.addEventListener('mousemove', function(e) {
-        if (isDragging) {
-          dragDiffX = mouseStartX - e.clientX;
-          let diffY = Math.abs(mouseStartY - e.clientY);
-          // Just track, don't change image yet
-        }
+        if (!isDragging) return;
+        let currentX = e.clientX;
+        let currentY = e.clientY;
+        let diffX = currentX - mouseStartX;
+        let diffY = Math.abs(currentY - mouseStartY);
+
+        if (diffY > Math.abs(diffX)) return; // Vertical drag
+
+        e.preventDefault();
+        currentTranslate = prevTranslate + (diffX / media.offsetWidth) * 100;
+        dragged = true;
       });
 
       media.addEventListener('mouseup', function(e) {
-        if (isDragging) {
-          let diffY = Math.abs(mouseStartY - e.clientY);
-          if (Math.abs(dragDiffX) > 50 && Math.abs(dragDiffX) > diffY) {
-            dragged = true;
-            if (dragDiffX > 0) { // Drag left - next
-              current = (current + 1) % imgs.length;
-            } else { // Drag right - prev
-              current = (current - 1 + imgs.length) % imgs.length;
-            }
-            updateImageAndDots();
+        if (!isDragging) return;
+        isDragging = false;
+        isSwiping = false;
+        cancelAnimationFrame(animationID);
+
+        let endX = e.clientX;
+        let diffX = mouseStartX - endX;
+        let diffY = Math.abs(e.clientY - mouseStartY);
+
+        if (Math.abs(diffX) > 50 && diffX > diffY) { // Drag threshold
+          if (diffX > 0) { // Drag left - next
+            current = Math.min(current + 1, imgs.length - 1);
+          } else { // Drag right - prev
+            current = Math.max(current - 1, 0);
           }
-          isDragging = false;
         }
+        setPositionByIndex();
+        updateDots();
       });
 
-      // Prevent image change on drag during click navigation
       media.addEventListener('mouseleave', function(e) {
-        isDragging = false;
+        if (isDragging) {
+          isDragging = false;
+          isSwiping = false;
+          cancelAnimationFrame(animationID);
+          setPositionByIndex();
+          updateDots();
+        }
       });
     }
 
-    card.querySelector('.details').addEventListener('click', function(){ 
-      window.location.href = 'project.html?id='+encodeURIComponent(p.id); 
+    card.querySelector('.details').addEventListener('click', function(){
+      window.location.href = 'project.html?id='+encodeURIComponent(p.id);
     });
 
-    card.querySelector('.watch').addEventListener('click', function(e){ 
-      e.stopPropagation(); 
-      var v = e.currentTarget.dataset.video; 
-      if(v) window.open(v,'_blank'); 
-      else alert(langLocal==='ar'?'لا يوجد فيديو لهذا المشروع':'No video for this project'); 
+    card.querySelector('.watch').addEventListener('click', function(e){
+      e.stopPropagation();
+      var v = e.currentTarget.dataset.video;
+      if(v) window.open(v,'_blank');
+      else alert(langLocal==='ar'?'لا يوجد فيديو لهذا المشروع':'No video for this project');
     });
 
     return card;
